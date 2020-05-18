@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model bileto_notifications_schema_version {
+  checksum       Int?
+  description    String
+  execution_time Int
+  installed_by   String
+  installed_on   DateTime @default(now())
+  installed_rank Int
+  script         String
+  success        Boolean
+  type           String
+  version        String   @id
+  version_rank   Int
+
+  @@index([installed_rank], name: "bileto_notifications_schema_version_ir_idx")
+  @@index([success], name: "bileto_notifications_schema_version_s_idx")
+  @@index([version_rank], name: "bileto_notifications_schema_version_vr_idx")
+}
+
+model email_white_label {
+  from_address        String
+  from_name           String?
+  id                  Int         @default(autoincrement()) @id
+  reply_to_addresses  Json?
+  template_group_name String
+  white_label_id      Int         @unique
+  white_label         white_label @relation(fields: [white_label_id], references: [id])
+}
+
+model template {
+  created_at  DateTime?
+  id          Int       @default(autoincrement()) @id
+  json_schema Json
+  name        String
+  updated_at  DateTime?
+  version     String
+
+  @@unique([name, version], name: "name_version_unique")
+}
+
+model whatsapp_template {
+  created_at DateTime?
+  id         Int       @default(autoincrement()) @id
+  message    String
+  name       String
+  updated_at DateTime?
+  version    String
+
+  @@unique([name, version], name: "name_version_unique_ct")
+}
+
+model white_label {
+  id                Int                @default(autoincrement()) @id
+  name              String
+  email_white_label email_white_label?
+}
